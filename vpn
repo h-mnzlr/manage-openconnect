@@ -55,19 +55,31 @@ stop_vpn()
     fi
 }
 
+# Read arguments from commandline
+while [ -n "$1" ]; do
+    case $1 in
+        start)
+            cmd='start_vpn'
+            shift
+            ;;
+        stop)
+            cmd='stop_vpn'
+            shift
+            ;;
+        status)
+            cmd='show_status'
+            shift
+            ;;
+        *)
+            echo Unrecognized token.
+            return -1
+            ;;
+    esac
+done
 
-case $1 in
-	start)
-        start_vpn
-		;;
-	stop)
-        stop_vpn
-		;;
-	status | '')
-        show_status
-		;;
-	*)
-		echo Unrecognized token.
-        return -1
-		;;
-esac
+# Run the chosen command
+if [[ -n "$cmd" ]]; then
+    $cmd  # Execute chosen cmd
+else
+    show_status
+fi

@@ -1,0 +1,56 @@
+#!/bin/sh
+
+
+# These values have to be configured.
+HOST=
+REMOTE_USER=
+PASS_USER=
+
+
+# These values may be configured
+INTERFACE=vpn
+PID_FILE=/run/openconnect_${INTERFACE}.pid
+PASS_PATH="${HOST}/${REMOTE_USER}/password"
+
+
+source $XDG_CONFIG_HOME/vpn-script/config
+
+
+PASS_CMD='pass $PASS_PATH | head -n1'
+
+PASSWORD_CMD="if [[ $(whoami) == ${PASS_USER} ]]; then eval ${PASS_CMD}; else su ${PASS_USER} -c \"${PASS_CMD}\"; fi"
+
+START_VPN="${PASSWORD_CMD} | sudo /usr/bin/openconnect --background --pid-file='${PID_FILE}' --interface='${INTERFACE}' --user='${REMOTE_USER}' --script='/etc/vpnc/vpnc-script-new' --passwd-on-stdin ${HOST}"
+STATUS_VPN=
+STOP_VPN='sudo kill -INT $(cat ${PID_FILE})'
+
+
+case $1 in
+	start)
+		if [[ -e ${PID_FILE} ]]; then
+			echo VPN already started.
+		else
+			echo Starting.
+			echo $START_VPN
+			eval $START_VPN >/dev/null
+		fi
+		;;
+	stop)
+		if [[ -e ${PID_FILE} ]]; then
+			echo Stopping
+			eval $STOP_VPN
+		else
+			echo VPN was no started.
+		fi
+		;;
+	status | '')
+		if [[ -e ${PID_FILE} ]]; then
+			echo ON
+		else
+			echo OFF
+		fi
+		;;
+	*)
+		echo Unrecognized token.
+		;;
+esac

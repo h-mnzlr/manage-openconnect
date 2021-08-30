@@ -1,6 +1,5 @@
 #!/bin/sh
 
-
 # These values have to be configured.
 HOST=
 REMOTE_USER=
@@ -45,18 +44,6 @@ while [ -n "$1" ]; do
     esac
 done
 
-
-source $CONFIG
-
-
-PASS_CMD='pass $PASS_PATH | head -n1'
-
-PASSWORD_CMD="if [[ $(whoami) == ${PASS_USER} ]]; then eval ${PASS_CMD}; else su ${PASS_USER} -c \"${PASS_CMD}\"; fi"
-
-START_VPN="${PASSWORD_CMD} | sudo /usr/bin/openconnect --background --pid-file='${PID_FILE}' --interface='${INTERFACE}' --user='${REMOTE_USER}' --script='/etc/vpnc/vpnc-script-new' --passwd-on-stdin ${HOST}"
-STATUS_VPN=
-STOP_VPN='sudo kill -INT $(cat ${PID_FILE})'
-
 exit_error()
 {
     if [ -n "$1" ]; then
@@ -67,7 +54,6 @@ exit_error()
     exit 1
 }
 
-
 show_status()
 {
 	if [[ -e ${PID_FILE} ]]; then
@@ -77,6 +63,9 @@ show_status()
     fi
 }
 
+PASS_CMD='pass $PASS_PATH | head -n1'
+PASSWORD_CMD="if [[ $(whoami) == ${PASS_USER} ]]; then eval ${PASS_CMD}; else su ${PASS_USER} -c \"${PASS_CMD}\"; fi"
+START_VPN="${PASSWORD_CMD} | sudo /usr/bin/openconnect --background --pid-file='${PID_FILE}' --interface='${INTERFACE}' --user='${REMOTE_USER}' --script='/etc/vpnc/vpnc-script-new' --passwd-on-stdin ${HOST}"
 start_vpn()
 {
     if [[ -e ${PID_FILE} ]]; then
@@ -87,6 +76,7 @@ start_vpn()
     fi
 }
 
+STOP_VPN='sudo kill -INT $(cat ${PID_FILE})'
 stop_vpn()
 {
     if [[ -e ${PID_FILE} ]]; then
@@ -97,7 +87,10 @@ stop_vpn()
     fi
 }
 
-# Run the chosen command
+# source config last to enable overwriting any variable
+source $CONFIG
+
+# Run the command chosen beforehand
 if [[ -n "$cmd" ]]; then
     $cmd  # Execute chosen cmd
 else

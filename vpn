@@ -1,5 +1,11 @@
 #!/bin/sh
 
+# These variables have to be configured.
+HOST=vpn.example.com
+REMOTE_USER=user.name
+PASSWORD=my_password
+
+
 exit_error()
 {
     if [ -n "$1" ]; then
@@ -56,19 +62,6 @@ while [ -n "$1" ]; do
     esac
 done
 
-# source config last to enable overwriting any variable
-CONFIG=${XDG_CONFIG_HOME}/vpn-script/config
-source $CONFIG
-
-# These values have to be configured.
-[ -n "$HOST" ] || HOST=vpn.example.com
-[ -n "$REMOTE_USER" ] || REMOTE_USER=user.name
-
-
-# These values may be configured
-[ -n "$INTERFACE" ] || INTERFACE=vpn
-[ -n "$PID_FILE" ] || PID_FILE=/run/openconnect_${INTERFACE}.pid
-[ -n "$PASSWORD" ] || PASSWORD=password
 
 show_status()
 {
@@ -101,9 +94,18 @@ stop_vpn()
     fi
 }
 
+# source config last to enable overwriting of any variable from config
+CONFIG=${XDG_CONFIG_HOME}/vpn-script/config
+source $CONFIG
+
+# These variables may be configured
+[ -n "$INTERFACE" ] || INTERFACE=vpn
+[ -n "$PID_FILE" ] || PID_FILE=/run/openconnect_${INTERFACE}.pid
+
+
 # Run the command chosen beforehand
 if [[ -n "$cmd" ]]; then
     $cmd  # Execute chosen cmd
-else
+else      # or status if none is chosen.
     show_status
 fi

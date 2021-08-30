@@ -13,6 +13,16 @@ PASS_PATH="${HOST}/${REMOTE_USER}/password"
 CONFIG=$XDG_CONFIG_HOME/vpn-script/config
 
 
+exit_error()
+{
+    if [ -n "$1" ]; then
+       echo 'Unknown error encountered. Exiting.'
+    else
+       echo $1
+    fi
+    exit 1
+}
+
 # Read arguments from commandline
 while [ -n "$1" ]; do
     case $1 in
@@ -43,16 +53,6 @@ while [ -n "$1" ]; do
             ;;
     esac
 done
-
-exit_error()
-{
-    if [ -n "$1" ]; then
-       echo 'Unknown error encountered. Exiting.'
-    else
-       echo $1
-    fi
-    exit 1
-}
 
 show_status()
 {

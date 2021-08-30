@@ -25,32 +25,49 @@ STATUS_VPN=
 STOP_VPN='sudo kill -INT $(cat ${PID_FILE})'
 
 
+
+show_status()
+{
+	if [[ -e ${PID_FILE} ]]; then
+        echo ON
+    else
+        echo OFF
+    fi
+}
+
+start_vpn()
+{
+    if [[ -e ${PID_FILE} ]]; then
+        echo VPN already started.
+    else
+        echo Starting.
+        eval $START_VPN >/dev/null
+    fi
+}
+
+stop_vpn()
+{
+    if [[ -e ${PID_FILE} ]]; then
+        echo Stopping
+        eval $STOP_VPN
+    else
+        echo VPN was not started.
+    fi
+}
+
+
 case $1 in
 	start)
-		if [[ -e ${PID_FILE} ]]; then
-			echo VPN already started.
-		else
-			echo Starting.
-			echo $START_VPN
-			eval $START_VPN >/dev/null
-		fi
+        start_vpn
 		;;
 	stop)
-		if [[ -e ${PID_FILE} ]]; then
-			echo Stopping
-			eval $STOP_VPN
-		else
-			echo VPN was no started.
-		fi
+        stop_vpn
 		;;
 	status | '')
-		if [[ -e ${PID_FILE} ]]; then
-			echo ON
-		else
-			echo OFF
-		fi
+        show_status
 		;;
 	*)
 		echo Unrecognized token.
+        return -1
 		;;
 esac

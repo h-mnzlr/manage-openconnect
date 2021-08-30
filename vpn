@@ -10,6 +10,16 @@ exit_error()
     exit 1
 }
 
+usage()
+{
+    echo "Usage:
+    vpn [start|stop|status]
+    Options:
+    --config <file>     Use non-default config file.
+    --help              Print this help.
+    "
+}
+
 # Read arguments from commandline
 while [ -n "$1" ]; do
     case $1 in
@@ -35,8 +45,13 @@ while [ -n "$1" ]; do
                 exit_error 'Unknown file.'
             fi
             ;;
+        --help)
+            usage
+            exit
+            ;;
         *)
-            exit_error "Unrecognized token."
+            usage
+            exit_error 'Unrecognized token.'
             ;;
     esac
 done

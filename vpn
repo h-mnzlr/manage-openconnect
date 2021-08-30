@@ -3,9 +3,9 @@
 exit_error()
 {
     if [ -n "$1" ]; then
-       echo 'Unknown error encountered. Exiting.'
-    else
        echo $1
+    else
+       echo 'Unknown error encountered. Exiting.'
     fi
     exit 1
 }
@@ -27,12 +27,12 @@ while [ -n "$1" ]; do
             ;;
         --config)
             CONFIG=$2
-            shift 2
+            shift 2 &>/dev/null
             if [ $? -ne 0 ]; then
-                exit_error "Please supply a file name."
+                exit_error 'Please supply a file name.'
             fi
             if [[ ! -e ${CONFIG} ]]; then
-                exit_error "Unknown file."
+                exit_error 'Unknown file.'
             fi
             ;;
         *)

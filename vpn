@@ -11,9 +11,42 @@ PASS_USER=
 INTERFACE=vpn
 PID_FILE=/run/openconnect_${INTERFACE}.pid
 PASS_PATH="${HOST}/${REMOTE_USER}/password"
+CONFIG=$XDG_CONFIG_HOME/vpn-script/config
 
 
-source $XDG_CONFIG_HOME/vpn-script/config
+# Read arguments from commandline
+while [ -n "$1" ]; do
+    case $1 in
+        start)
+            cmd='start_vpn'
+            shift
+            ;;
+        stop)
+            cmd='stop_vpn'
+            shift
+            ;;
+        status)
+            cmd='show_status'
+            shift
+            ;;
+        --config)
+            CONFIG=$2
+            shift 2
+            if [ $? -ne 0 ]; then
+                exit_error "Please supply a file name."
+            fi
+            if [[ ! -e ${CONFIG} ]]; then
+                exit_error "Unknown file."
+            fi
+            ;;
+        *)
+            exit_error "Unrecognized token."
+            ;;
+    esac
+done
+
+
+source $CONFIG
 
 
 PASS_CMD='pass $PASS_PATH | head -n1'
@@ -24,6 +57,15 @@ START_VPN="${PASSWORD_CMD} | sudo /usr/bin/openconnect --background --pid-file='
 STATUS_VPN=
 STOP_VPN='sudo kill -INT $(cat ${PID_FILE})'
 
+exit_error()
+{
+    if [ -n "$1" ]; then
+       echo 'Unknown error encountered. Exiting.'
+    else
+       echo $1
+    fi
+    exit 1
+}
 
 
 show_status()
@@ -54,28 +96,6 @@ stop_vpn()
         echo VPN was not started.
     fi
 }
-
-# Read arguments from commandline
-while [ -n "$1" ]; do
-    case $1 in
-        start)
-            cmd='start_vpn'
-            shift
-            ;;
-        stop)
-            cmd='stop_vpn'
-            shift
-            ;;
-        status)
-            cmd='show_status'
-            shift
-            ;;
-        *)
-            echo Unrecognized token.
-            exit 1
-            ;;
-    esac
-done
 
 # Run the chosen command
 if [[ -n "$cmd" ]]; then

@@ -63,13 +63,12 @@ source $CONFIG
 # These values have to be configured.
 [ -n "$HOST" ] || HOST=vpn.example.com
 [ -n "$REMOTE_USER" ] || REMOTE_USER=user.name
-[ -n "$PASS_USER" ] || PASS_USER=local_user  # user who owns the pass repo
 
 
 # These values may be configured
 [ -n "$INTERFACE" ] || INTERFACE=vpn
 [ -n "$PID_FILE" ] || PID_FILE=/run/openconnect_${INTERFACE}.pid
-[ -n "$PASS_PATH" ] || PASS_PATH=${HOST}/${REMOTE_USER}/password
+[ -n "$PASSWORD" ] || PASSWORD=password
 
 show_status()
 {
@@ -80,9 +79,6 @@ show_status()
     fi
 }
 
-PASS_CMD='pass $PASS_PATH | head -n1'
-PASSWORD_CMD="if [[ $(whoami) == ${PASS_USER} ]]; then eval ${PASS_CMD}; else su ${PASS_USER} -c \"${PASS_CMD}\"; fi"
-[ -n "$PASSWORD" ] || PASSWORD=`eval ${PASSWORD_CMD}`
 START_VPN='echo ${PASSWORD} | sudo /usr/bin/openconnect --background --pid-file=${PID_FILE} --interface=${INTERFACE} --user=${REMOTE_USER} --script=/etc/vpnc/vpnc-script-new --passwd-on-stdin ${HOST}'
 start_vpn()
 {

@@ -1,18 +1,5 @@
 #!/bin/sh
 
-# These values have to be configured.
-HOST=
-REMOTE_USER=
-PASS_USER=
-
-
-# These values may be configured
-INTERFACE=vpn
-PID_FILE=/run/openconnect_${INTERFACE}.pid
-PASS_PATH="${HOST}/${REMOTE_USER}/password"
-CONFIG=$XDG_CONFIG_HOME/vpn-script/config
-
-
 exit_error()
 {
     if [ -n "$1" ]; then
@@ -54,6 +41,21 @@ while [ -n "$1" ]; do
     esac
 done
 
+# source config last to enable overwriting any variable
+CONFIG=${XDG_CONFIG_HOME}/vpn-script/config
+source $CONFIG
+
+# These values have to be configured.
+[ -n "$HOST" ] || HOST=vpn.example.com
+[ -n "$REMOTE_USER" ] || REMOTE_USER=user.name
+[ -n "$PASS_USER" ] || PASS_USER=local_user  # user who owns the pass repo
+
+
+# These values may be configured
+[ -n "$INTERFACE" ] || INTERFACE=vpn
+[ -n "$PID_FILE" ] || PID_FILE=/run/openconnect_${INTERFACE}.pid
+[ -n "$PASS_PATH" ] || PASS_PATH=${HOST}/${REMOTE_USER}/password
+
 show_status()
 {
 	if [[ -e ${PID_FILE} ]]; then
@@ -86,9 +88,6 @@ stop_vpn()
         echo VPN was not started.
     fi
 }
-
-# source config last to enable overwriting any variable
-source $CONFIG
 
 # Run the command chosen beforehand
 if [[ -n "$cmd" ]]; then

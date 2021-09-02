@@ -4,6 +4,7 @@
 HOST=vpn.example.com
 REMOTE_USER=user.name
 PASSWORD=my_password
+CONFIG=${XDG_CONFIG_HOME}/vpn-script/config
 
 
 exit_error()
@@ -95,7 +96,6 @@ stop_vpn()
 }
 
 # source config last to enable overwriting of any variable from config
-CONFIG=${XDG_CONFIG_HOME}/vpn-script/config
 source $CONFIG
 
 # These variables may be configured
